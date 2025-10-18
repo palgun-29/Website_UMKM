@@ -4,93 +4,82 @@
 
 @section('content')
     <div class="container my-5">
-        <div class="row">
-            <div class="col-lg-8">
-                <h2 class="mb-4">Keranjang Belanja Anda</h2>
+        <h1 class="text-center fw-bold mb-4">Keranjang Belanja Anda</h1>
 
-                {{-- Item di Keranjang --}}
-                <div class="card shadow-sm mb-3">
-                    <div class="card-body">
-                        <div class="row align-items-center">
-                            <div class="col-md-2">
-                                <img src="{{ asset('images/balado.jpg') }}" class="img-fluid rounded"
-                                    alt="Balado Pedas Manis">
-                            </div>
-                            <div class="col-md-4">
-                                <h5 class="mb-0">Balado Pedas Manis</h5>
-                                <small class="text-muted">Rp 15.000</small>
-                            </div>
-                            <div class="col-md-3">
-                                <input type="number" class="form-control" value="2" min="1">
-                            </div>
-                            <div class="col-md-2">
-                                <h6 class="mb-0">Rp 30.000</h6>
-                            </div>
-                            <div class="col-md-1 text-end">
-                                <button class="btn btn-sm btn-outline-danger">&times;</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card shadow-sm mb-3">
-                    <div class="card-body">
-                        <div class="row align-items-center">
-                            <div class="col-md-2">
-                                <img src="{{ asset('images/jagung manis.jpg') }}" class="img-fluid rounded"
-                                    alt="Jagung Bakar Gurih">
-                            </div>
-                            <div class="col-md-4">
-                                <h5 class="mb-0">Jagung Bakar Gurih</h5>
-                                <small class="text-muted">Rp 15.000</small>
-                            </div>
-                            <div class="col-md-3">
-                                <input type="number" class="form-control" value="1" min="1">
-                            </div>
-                            <div class="col-md-2">
-                                <h6 class="mb-0">Rp 15.000</h6>
-                            </div>
-                            <div class="col-md-1 text-end">
-                                <button class="btn btn-sm btn-outline-danger">&times;</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <a href="{{-- route('products.index') --}}" class="btn btn-outline-dark mt-3">
-                    <i class="fas fa-arrow-left"></i> Lanjut Belanja
-                </a>
+        @if (empty($cart))
+            <div class="alert alert-info text-center">
+                Keranjang Anda masih kosong. Yuk, <a href="{{ route('produk') }}">mulai belanja!</a>
             </div>
-
-            {{-- Ringkasan Pesanan --}}
-            <div class="col-lg-4">
-                <div class="card shadow-sm">
-                    <div class="card-body">
-                        <h4 class="card-title mb-4">Ringkasan Pesanan</h4>
-                        <ul class="list-group list-group-flush">
-                            <li
-                                class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0">
-                                Subtotal
-                                <span>Rp 45.000</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0">
-                                Biaya Pengiriman
-                                <span>Rp 10.000</span>
-                            </li>
-                            <li
-                                class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 mb-3">
-                                <div>
-                                    <strong>Total</strong>
-                                </div>
-                                <span><strong>Rp 55.000</strong></span>
-                            </li>
-                        </ul>
-                        <button class="btn btn-success btn-lg w-100">
-                            Lanjutkan ke Checkout
-                        </button>
-                    </div>
+        @else
+            {{-- Form untuk update keranjang --}}
+            <form action="{{ route('cart.update') }}" method="POST">
+                @csrf
+                {{-- Tabel untuk menampilkan item keranjang --}}
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Produk</th>
+                                <th class="text-center">Kuantitas</th>
+                                <th class="text-end">Harga Satuan</th>
+                                <th class="text-end">Subtotal</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($cart as $id => $item)
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img src="{{ $item['image'] }}" alt="{{ $item['title'] }}"
+                                                class="img-thumbnail me-3" style="width: 50px; height: 50px;">
+                                            <span>{{ $item['title'] }}</span>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <input type="number" name="quantities[{{ $id }}]"
+                                            value="{{ $item['quantity'] }}" min="1" class="form-control"
+                                            style="width: 80px;">
+                                    </td>
+                                    <td class="text-end">Rp{{ number_format($item['price'], 0, ',', '.') }}</td>
+                                    <td class="text-end">
+                                        Rp{{ number_format($item['price'] * $item['quantity'], 0, ',', '.') }}</td>
+                                    <td>
+                                        <form action="{{ route('cart.remove') }}" method="POST" class="d-inline">
+                                            @csrf
+                                            <input type="hidden" name="product_id" value="{{ $id }}">
+                                            <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="3" class="text-end">Subtotal:</th>
+                                <th class="text-end">Rp{{ number_format($subtotal, 0, ',', '.') }}</th>
+                                <th></th>
+                            </tr>
+                            <tr>
+                                <th colspan="3" class="text-end">Biaya Pengiriman:</th>
+                                <th class="text-end">Rp{{ number_format($shippingCost, 0, ',', '.') }}</th>
+                                <th></th>
+                            </tr>
+                            <tr>
+                                <th colspan="3" class="text-end">Total:</th>
+                                <th class="text-end">Rp{{ number_format($total, 0, ',', '.') }}</th>
+                                <th></th>
+                            </tr>
+                        </tfoot>
+                    </table>
                 </div>
-            </div>
-        </div>
+
+                <div class="text-end mt-4">
+                    <a href="{{ route('produk') }}" class="btn btn-secondary me-2">Lanjut Belanja</a>
+                    <button type="submit" class="btn btn-primary me-2">Update Keranjang</button>
+                    <a href="{{ route('checkout.show') }}" class="btn btn-success">Checkout</a>
+                </div>
+            </form>
+        @endif
     </div>
 @endsection

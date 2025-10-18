@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('flavors', function (Blueprint $table) {
-            $table->decimal('price', 8, 2)->after('name')->default(0); // Harga, misal: 15000.00
-            $table->integer('stock')->after('price')->default(0); // Stok barang
+            $table->decimal('price', 8, 2)->default(0); // Harga, misal: 15000.00
+            $table->integer('stock')->default(0); // Stok barang
         });
     }
 

@@ -9,7 +9,7 @@ class PageController extends Controller
     // Menampilkan halaman Beranda
     public function beranda()
     {
-        return view('pages.beranda');
+        return view('pages.dashboard');
     }
 
     // Menampilkan halaman Produk
